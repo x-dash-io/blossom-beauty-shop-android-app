@@ -13,6 +13,7 @@ export interface Product {
   isFeatured: boolean;
   isNew: boolean;
   stockQuantity?: number;
+  createdAt: string;
 }
 
 export interface Category {

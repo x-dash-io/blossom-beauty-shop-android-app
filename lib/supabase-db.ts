@@ -70,6 +70,7 @@ function mapProduct(row: ProductRow): Product {
     isFeatured: row.is_featured,
     isNew: row.is_new,
     stockQuantity: row.stock_quantity ?? undefined,
+    createdAt: (row as any).created_at || new Date().toISOString(),
   };
 }
 

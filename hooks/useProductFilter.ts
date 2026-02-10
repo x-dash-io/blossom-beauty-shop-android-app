@@ -24,7 +24,9 @@ export function useProductFilter(products: Product[]) {
     if (sortBy === 'price_asc') result.sort((a, b) => a.price - b.price);
     else if (sortBy === 'price_desc') result.sort((a, b) => b.price - a.price);
     else if (sortBy === 'rating') result.sort((a, b) => b.rating - a.rating);
-    else if (sortBy === 'newest') result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+    else if (sortBy === 'newest') {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
 
     return result;
   }, [products, sortBy, priceRange, ratingFilter]);
