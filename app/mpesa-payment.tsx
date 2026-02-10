@@ -24,9 +24,6 @@ import { useAuth } from '@/providers/AuthProvider';
 import {
   createPayment,
   fetchPaymentStatus,
-  updatePaymentCheckoutId,
-  updatePaymentStatus,
-  updateOrderStatus,
 } from '@/lib/supabase-db';
 import { initiateStkPush, formatPhoneDisplay } from '@/lib/mpesa';
 
@@ -130,9 +127,6 @@ export default function MpesaPaymentScreen() {
           setReceiptNumber(payment.mpesaReceiptNumber ?? '');
           setScreenState('completed');
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          if (orderId) {
-            await updateOrderStatus(orderId, 'processing');
-          }
         } else if (payment?.status === 'failed' || payment?.status === 'cancelled') {
           cleanup();
           setErrorMessage(payment.resultDesc ?? 'Payment was not completed');
@@ -174,19 +168,12 @@ export default function MpesaPaymentScreen() {
 
       const result = await initiateStkPush({
         phone,
-        amount: amountNum,
         orderId,
         paymentId,
       });
 
       if (result.success) {
         console.log('[M-Pesa] STK Push initiated:', result.data.CheckoutRequestID);
-
-        await updatePaymentCheckoutId(
-          paymentId,
-          result.data.CheckoutRequestID,
-          result.data.MerchantRequestID,
-        );
 
         setScreenState('waiting');
         startPulse();
@@ -237,14 +224,8 @@ export default function MpesaPaymentScreen() {
   const handleCancel = useCallback(async () => {
     cleanup();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (paymentId) {
-      await updatePaymentStatus(paymentId, 'cancelled', 'Cancelled by user');
-    }
-    if (orderId) {
-      await updateOrderStatus(orderId, 'cancelled');
-    }
     router.back();
-  }, [cleanup, paymentId, orderId, router]);
+  }, [cleanup, router]);
 
   const handleContinue = useCallback(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

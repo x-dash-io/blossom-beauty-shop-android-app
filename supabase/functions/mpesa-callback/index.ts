@@ -1,8 +1,3 @@
-// @ts-nocheck
-// Supabase Edge Function: M-Pesa Callback
-// Deploy: supabase functions deploy mpesa-callback --no-verify-jwt
-// (--no-verify-jwt is required because Safaricom calls this endpoint directly)
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -35,19 +30,16 @@ serve(async (req: Request) => {
     }
 
     const isSuccess = ResultCode === 0;
-    console.log(
-      `Payment ${isSuccess ? "SUCCESS" : "FAILED"}: CheckoutRequestID=${CheckoutRequestID}, ResultCode=${ResultCode}, Receipt=${mpesaReceiptNumber}`
-    );
-
-    // Find and update the payment record
+    
+    // Find the payment record
     const { data: payment, error: fetchError } = await supabase
       .from("payments")
-      .select("id, order_id")
+      .select("id, order_id, user_id")
       .eq("checkout_request_id", CheckoutRequestID)
       .single();
 
     if (fetchError || !payment) {
-      console.error("Payment not found for CheckoutRequestID:", CheckoutRequestID, fetchError);
+      console.error("Payment not found for CheckoutRequestID:", CheckoutRequestID);
       return new Response(
         JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }),
         { headers: { "Content-Type": "application/json" } }
@@ -73,6 +65,20 @@ serve(async (req: Request) => {
         .update({ status: "processing" })
         .eq("id", payment.order_id);
     }
+
+    // AUDIT LOG
+    await supabase.from("payment_logs").insert({
+      payment_id: payment.id,
+      order_id: payment.order_id,
+      user_id: payment.user_id,
+      action: "callback_received",
+      payload: { 
+        result_code: ResultCode, 
+        result_desc: ResultDesc, 
+        is_success: isSuccess,
+        receipt: mpesaReceiptNumber 
+      }
+    });
 
     return new Response(
       JSON.stringify({ ResultCode: 0, ResultDesc: "Accepted" }),

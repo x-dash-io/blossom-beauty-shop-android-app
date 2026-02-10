@@ -68,6 +68,18 @@ export default function WriteReviewScreen() {
       Alert.alert('Review Required', 'Please write your review.');
       return;
     }
+    if (title.trim().length > 100) {
+      Alert.alert('Title Too Long', 'Review title must be 100 characters or less.');
+      return;
+    }
+    if (body.trim().length > 1000) {
+      Alert.alert('Review Too Long', 'Review body must be 1000 characters or less.');
+      return;
+    }
+    if (body.trim().length < 10) {
+      Alert.alert('Review Too Short', 'Please write at least 10 characters.');
+      return;
+    }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 

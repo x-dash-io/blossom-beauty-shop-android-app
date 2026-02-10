@@ -543,63 +543,6 @@ export async function fetchPaymentStatus(paymentId: string): Promise<MpesaPaymen
   return mapPayment(data as PaymentRow);
 }
 
-export async function updatePaymentCheckoutId(
-  paymentId: string,
-  checkoutRequestId: string,
-  merchantRequestId: string,
-): Promise<boolean> {
-  const { error } = await supabase
-    .from('payments')
-    .update({
-      checkout_request_id: checkoutRequestId,
-      merchant_request_id: merchantRequestId,
-      status: 'processing',
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', paymentId);
-
-  if (error) {
-    console.log('[DB] Error updating payment checkout ID:', error.message);
-    return false;
-  }
-  return true;
-}
-
-export async function updatePaymentStatus(
-  paymentId: string,
-  status: string,
-  resultDesc?: string,
-): Promise<boolean> {
-  const { error } = await supabase
-    .from('payments')
-    .update({
-      status,
-      result_desc: resultDesc ?? null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', paymentId);
-
-  if (error) {
-    console.log('[DB] Error updating payment status:', error.message);
-    return false;
-  }
-  return true;
-}
-
-export async function updateOrderStatus(orderId: string, status: string): Promise<boolean> {
-  console.log('[DB] Updating order', orderId, 'status to:', status);
-  const { error } = await supabase
-    .from('orders')
-    .update({ status })
-    .eq('id', orderId);
-
-  if (error) {
-    console.log('[DB] Error updating order status:', error.message);
-    return false;
-  }
-  console.log('[DB] Order status updated successfully');
-  return true;
-}
 
 export async function clearUserCart(userId: string): Promise<boolean> {
   try {

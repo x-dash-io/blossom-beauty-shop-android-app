@@ -34,7 +34,6 @@ interface StkPushSuccessResponse {
 
 export async function initiateStkPush(params: {
   phone: string;
-  amount: number;
   orderId: string;
   paymentId: string;
 }): Promise<{ success: true; data: StkPushSuccessResponse } | { success: false; error: string }> {
@@ -45,7 +44,6 @@ export async function initiateStkPush(params: {
     const { data, error } = await supabase.functions.invoke('mpesa-stk-push', {
       body: {
         phone: normalizedPhone,
-        amount: Math.ceil(params.amount),
         orderId: params.orderId,
         paymentId: params.paymentId,
         accountReference: 'BlossomBeauty',

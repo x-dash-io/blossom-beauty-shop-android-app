@@ -1,15 +1,3 @@
-// @ts-nocheck
-// Supabase Edge Function: M-Pesa STK Push
-// Deploy: supabase functions deploy mpesa-stk-push
-//
-// Required secrets (set via Supabase Dashboard or CLI):
-//   supabase secrets set MPESA_CONSUMER_KEY=your_key
-//   supabase secrets set MPESA_CONSUMER_SECRET=your_secret
-//   supabase secrets set MPESA_PASSKEY=your_passkey
-//   supabase secrets set MPESA_SHORTCODE=your_shortcode
-//   supabase secrets set MPESA_ENVIRONMENT=sandbox
-//   (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are auto-set by Supabase)
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -22,15 +10,53 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+interface StkPushRequest {
+  phone: string;
+  orderId: string;
+  paymentId: string;
+  accountReference?: string;
+  transactionDesc?: string;
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { phone, amount, orderId, paymentId, accountReference, transactionDesc } =
+    const { phone, orderId, paymentId, accountReference, transactionDesc }: StkPushRequest =
       await req.json();
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // 1. SECURITY: Verify Order amount and ownership server-side
+    // We get the user ID from the request header (passed by Supabase Functions client)
+    const authHeader = req.headers.get('Authorization')!;
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+
+    if (userError || !user) {
+      throw new Error("Unauthorized: " + (userError?.message || "User not found"));
+    }
+
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("total, user_id")
+      .eq("id", orderId)
+      .single();
+
+    if (orderError || !order) {
+      throw new Error("Order not found");
+    }
+
+    if (order.user_id !== user.id) {
+      throw new Error("Forbidden: This order does not belong to you");
+    }
+
+    const amount = order.total;
+
+    // 2. M-Pesa Auth & Config
     const env = Deno.env.get("MPESA_ENVIRONMENT") ?? "sandbox";
     const baseUrl = env === "production" ? PRODUCTION_URL : SANDBOX_URL;
     const consumerKey = Deno.env.get("MPESA_CONSUMER_KEY")!;
@@ -38,7 +64,7 @@ serve(async (req: Request) => {
     const passkey = Deno.env.get("MPESA_PASSKEY")!;
     const shortcode = Deno.env.get("MPESA_SHORTCODE")!;
 
-    // 1. Get OAuth token
+    // 3. Get OAuth token
     const authString = btoa(`${consumerKey}:${consumerSecret}`);
     const tokenRes = await fetch(
       `${baseUrl}/oauth/v1/generate?grant_type=client_credentials`,
@@ -55,7 +81,7 @@ serve(async (req: Request) => {
       );
     }
 
-    // 2. Generate timestamp + password
+    // 4. Generate timestamp + password
     const now = new Date();
     const timestamp =
       now.getFullYear().toString() +
@@ -66,11 +92,9 @@ serve(async (req: Request) => {
       String(now.getSeconds()).padStart(2, "0");
     const password = btoa(`${shortcode}${passkey}${timestamp}`);
 
-    // 3. Callback URL (auto-resolves to your Supabase project)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const callbackUrl = `${supabaseUrl}/functions/v1/mpesa-callback`;
 
-    // 4. STK Push request
+    // 5. STK Push request
     const stkRes = await fetch(`${baseUrl}/mpesa/stkpush/v1/processrequest`, {
       method: "POST",
       headers: {
@@ -95,11 +119,8 @@ serve(async (req: Request) => {
     const stkData = await stkRes.json();
     console.log("STK Push response:", JSON.stringify(stkData));
 
-    // 5. Update payment record if STK push succeeded
+    // 6. Update payment record if STK push succeeded
     if (stkData.ResponseCode === "0") {
-      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
       await supabase
         .from("payments")
         .update({
@@ -109,6 +130,19 @@ serve(async (req: Request) => {
           updated_at: new Date().toISOString(),
         })
         .eq("id", paymentId);
+
+      // AUDIT LOG
+      await supabase.from("payment_logs").insert({
+        payment_id: paymentId,
+        order_id: orderId,
+        user_id: user.id,
+        action: "stk_push_initiated",
+        payload: { 
+          checkout_request_id: stkData.CheckoutRequestID,
+          merchant_request_id: stkData.MerchantRequestID,
+          amount: Math.ceil(amount)
+        }
+      });
     }
 
     return new Response(JSON.stringify(stkData), {
@@ -118,7 +152,7 @@ serve(async (req: Request) => {
     console.error("M-Pesa STK Push error:", error);
     return new Response(
       JSON.stringify({ error: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
