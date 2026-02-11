@@ -21,6 +21,7 @@ export const [ProductsProvider, useProducts] = createContextHook(() => {
       return mockProducts;
     },
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   const categoriesQuery = useQuery({
@@ -36,6 +37,7 @@ export const [ProductsProvider, useProducts] = createContextHook(() => {
       return mockCategories;
     },
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   const products = productsQuery.data ?? mockProducts;
@@ -84,7 +86,8 @@ export const [ProductsProvider, useProducts] = createContextHook(() => {
     getNewProducts,
     getProductsByCategory,
     searchProducts,
-    isLoading: productsQuery.isLoading,
+    isLoading: productsQuery.isLoading || categoriesQuery.isLoading,
+    hasError: productsQuery.isError || categoriesQuery.isError,
     refetch: async () => {
       await productsQuery.refetch();
       await categoriesQuery.refetch();

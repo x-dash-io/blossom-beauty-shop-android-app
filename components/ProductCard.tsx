@@ -1,7 +1,7 @@
 import React, { useRef, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable, Animated } from 'react-native';
 import { Image } from 'expo-image';
-import { Heart, Star } from 'lucide-react-native';
+import { Heart, Star, Sparkles } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { Product } from '@/types';
 import Colors from '@/constants/colors';
@@ -49,6 +49,8 @@ export default function ProductCard({
         onPressOut={handlePressOut}
         style={styles.card}
         testID={`product-card-${product.id}`}
+        accessibilityRole="button"
+        accessibilityLabel={`${product.name} by ${product.brand}`}
       >
         <View style={styles.imageContainer}>
           <Image
@@ -68,8 +70,16 @@ export default function ProductCard({
               <Text style={styles.stockBadgeText}>Only {product.stockQuantity} left</Text>
             </View>
           )}
+          {product.isNew && (
+            <View style={styles.newBadge}>
+              <Sparkles size={10} color={Colors.white} />
+              <Text style={styles.newBadgeText}>New</Text>
+            </View>
+          )}
           {onToggleFavorite && (
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 Animated.sequence([
@@ -103,7 +113,10 @@ export default function ProductCard({
             <Text style={styles.ratingText}>{product.rating}</Text>
             <Text style={styles.reviewCount}>({product.reviewCount})</Text>
           </View>
-          <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+          <View style={styles.priceRow}>
+            <Text style={styles.price}>${product.price.toFixed(2)}</Text>
+            {product.inStock ? <Text style={styles.stockPill}>In stock</Text> : <Text style={styles.stockPillMuted}>Sold out</Text>}
+          </View>
         </View>
       </Pressable>
     </Animated.View>
@@ -174,6 +187,24 @@ const styles = StyleSheet.create({
   info: {
     padding: 10,
   },
+
+  newBadge: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 999,
+  },
+  newBadgeText: {
+    color: Colors.white,
+    fontSize: 9,
+    fontWeight: '700',
+  },
   brand: {
     fontSize: 10,
     color: Colors.textMuted,
@@ -204,10 +235,36 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: Colors.textMuted,
   },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+    gap: 8,
+  },
   price: {
     fontSize: 15,
     color: Colors.textPrimary,
     fontWeight: '700',
-    marginTop: 2,
+  },
+  stockPill: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: Colors.success,
+    backgroundColor: Colors.successLight,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 999,
+    textTransform: 'uppercase',
+  },
+  stockPillMuted: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    backgroundColor: Colors.borderLight,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 999,
+    textTransform: 'uppercase',
   },
 });

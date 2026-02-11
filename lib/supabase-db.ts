@@ -147,7 +147,7 @@ export async function fetchCategories(): Promise<Category[]> {
 }
 
 export async function fetchUserOrders(userId: string): Promise<Order[]> {
-  console.log('[DB] Fetching orders for user:', userId);
+  console.log('[DB] Fetching user orders');
   const { data, error } = await supabase
     .from('orders')
     .select('*')
@@ -247,7 +247,7 @@ export async function updateReviewHelpful(reviewId: string, newCount: number): P
 }
 
 export async function fetchUserFavoriteIds(userId: string): Promise<string[]> {
-  console.log('[DB] Fetching favorites for user:', userId);
+  console.log('[DB] Fetching user favorites');
   const { data, error } = await supabase
     .from('favorites')
     .select('product_id')
@@ -399,7 +399,7 @@ export async function deleteUserAddress(addressId: number): Promise<boolean> {
 }
 
 export async function fetchUserCart(userId: string): Promise<CartItem[]> {
-  console.log('[DB] Fetching cart for user:', userId);
+  console.log('[DB] Fetching user cart');
   try {
     const { data: cartData, error: cartError } = await supabase
       .from('cart_items')
@@ -441,7 +441,7 @@ export async function fetchUserCart(userId: string): Promise<CartItem[]> {
 }
 
 export async function syncUserCart(userId: string, items: CartItem[]): Promise<boolean> {
-  console.log('[DB] Syncing cart for user:', userId, 'items:', items.length);
+  console.log('[DB] Syncing user cart, items:', items.length);
   try {
     await supabase.from('cart_items').delete().eq('user_id', userId);
 

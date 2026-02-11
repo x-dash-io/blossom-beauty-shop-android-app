@@ -47,6 +47,7 @@ export default function CategoryCard({ category, onPress }: CategoryCardProps) {
         <Text style={styles.name} numberOfLines={1}>
           {category.name}
         </Text>
+        <Text style={styles.count}>{category.productCount} items</Text>
       </Pressable>
     </Animated.View>
   );
@@ -55,12 +56,12 @@ export default function CategoryCard({ category, onPress }: CategoryCardProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    width: 76,
+    width: 88,
   },
   imageWrapper: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     overflow: 'hidden',
     backgroundColor: Colors.card,
     borderWidth: 2,
@@ -72,9 +73,14 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Colors.textPrimary,
-    marginTop: 6,
+    marginTop: 7,
     textAlign: 'center',
+  },
+  count: {
+    fontSize: 9,
+    color: Colors.textMuted,
+    marginTop: 2,
   },
 });
