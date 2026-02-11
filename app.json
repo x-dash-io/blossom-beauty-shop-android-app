@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Beauty Shop Android App",
+    "name": "Blossom Beauty Shop",
     "slug": "beauty-shop-android-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -40,6 +40,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": "https://rork.com/"
+      },
+      "eas": {
+        "projectId": "9e499e7d-61f3-46de-9be9-7ecc2aec546f"
+      }
     }
   }
 }

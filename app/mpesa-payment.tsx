@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { Image } from 'expo-image';
 import {
   Smartphone,
   CheckCircle,
@@ -28,7 +29,6 @@ import {
 import { initiateStkPush, formatPhoneDisplay } from '@/lib/mpesa';
 
 const MPESA_GREEN = '#00A550';
-const MPESA_DARK = '#004D25';
 const MPESA_LIGHT = '#E8F5E9';
 const POLL_INTERVAL_MS = 3000;
 const MAX_WAIT_SECONDS = 60;
@@ -137,7 +137,7 @@ export default function MpesaPaymentScreen() {
         console.log('[M-Pesa] Poll error:', err);
       }
     }, POLL_INTERVAL_MS);
-  }, [paymentId, orderId, cleanup, progressAnim]);
+  }, [paymentId, cleanup, progressAnim]);
 
   const initiatePayment = useCallback(async () => {
     if (!user?.id || !orderId || !paymentId || !phone) {
@@ -260,8 +260,11 @@ export default function MpesaPaymentScreen() {
             <View style={styles.headerButton} />
           )}
           <View style={styles.mpesaHeaderBadge}>
-            <Text style={styles.mpesaHeaderM}>M</Text>
-            <Text style={styles.mpesaHeaderPesa}>-PESA</Text>
+            <Image
+              source={require('@/assets/images/mpesa-logo.png')}
+              style={styles.mpesaLogo}
+              contentFit="contain"
+            />
           </View>
           <View style={styles.headerButton} />
         </View>
@@ -450,17 +453,12 @@ const styles = StyleSheet.create({
   },
   mpesaHeaderBadge: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  mpesaHeaderM: {
-    fontSize: 22,
-    fontWeight: '800' as const,
-    color: MPESA_GREEN,
-  },
-  mpesaHeaderPesa: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    color: MPESA_DARK,
+  mpesaLogo: {
+    width: 80,
+    height: 32,
   },
   content: {
     flex: 1,

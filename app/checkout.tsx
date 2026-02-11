@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { MapPin, CreditCard, Truck, ChevronDown, Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -376,7 +377,11 @@ export default function CheckoutScreen() {
               <View style={styles.paymentMethodHeader}>
                 <Text style={styles.paymentText}>M-Pesa</Text>
                 <View style={styles.mpesaBadge}>
-                  <Text style={styles.mpesaBadgeText}>M-PESA</Text>
+                  <Image
+                    source={require('@/assets/images/mpesa-logo.png')}
+                    style={styles.mpesaBadgeLogo}
+                    contentFit="contain"
+                  />
                 </View>
               </View>
               <Text style={styles.paymentSubtext}>Pay via Safaricom M-Pesa</Text>
@@ -634,14 +639,12 @@ const styles = StyleSheet.create({
   mpesaBadge: {
     backgroundColor: '#00A550',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 4,
     borderRadius: 4,
   },
-  mpesaBadgeText: {
-    fontSize: 10,
-    fontWeight: '800' as const,
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
+  mpesaBadgeLogo: {
+    width: 60,
+    height: 20,
   },
   mpesaPhoneSection: {
     marginBottom: 10,

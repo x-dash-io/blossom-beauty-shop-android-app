@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import { Platform, View, ActivityIndicator, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "@/providers/AuthProvider";
+import { setupDeepLinkListener } from "@/lib/supabase";
 import { CartProvider } from "@/providers/CartProvider";
 import { FavoritesProvider } from "@/providers/FavoritesProvider";
 import { OrdersProvider } from "@/providers/OrdersProvider";
@@ -23,6 +24,10 @@ function AuthGate() {
   const { isLoading, isAuthenticated, hasCompletedOnboarding } = useAuth();
   const router = useRouter();
   const segments = useSegments();
+
+  useEffect(() => {
+    return setupDeepLinkListener();
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;

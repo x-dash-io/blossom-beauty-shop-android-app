@@ -18,6 +18,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: true,
     isNew: false,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p2',
@@ -36,6 +37,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: true,
     isNew: false,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p3',
@@ -54,6 +56,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: true,
     isNew: true,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p4',
@@ -72,6 +75,7 @@ export const products: Product[] = [
     isFeatured: false,
     isNew: false,
     stockQuantity: 5,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p5',
@@ -89,6 +93,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: false,
     isNew: true,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p6',
@@ -106,6 +111,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: true,
     isNew: false,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p7',
@@ -123,6 +129,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: false,
     isNew: false,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p8',
@@ -140,6 +147,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: false,
     isNew: true,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p9',
@@ -157,6 +165,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: true,
     isNew: false,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p10',
@@ -175,6 +184,7 @@ export const products: Product[] = [
     isFeatured: false,
     isNew: false,
     stockQuantity: 0,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p11',
@@ -193,6 +203,7 @@ export const products: Product[] = [
     isFeatured: false,
     isNew: true,
     stockQuantity: 3,
+    createdAt: new Date().toISOString(),
   },
   {
     id: 'p12',
@@ -210,6 +221,7 @@ export const products: Product[] = [
     inStock: true,
     isFeatured: false,
     isNew: false,
+    createdAt: new Date().toISOString(),
   },
 ];
 

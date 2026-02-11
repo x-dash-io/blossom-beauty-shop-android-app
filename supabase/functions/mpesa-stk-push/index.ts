@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// import { serve } from "std/http/server.ts";
+import { createClient } from "@supabase/supabase-js";
 
 const SANDBOX_URL = "https://sandbox.safaricom.co.ke";
 const PRODUCTION_URL = "https://api.safaricom.co.ke";
@@ -18,7 +18,7 @@ interface StkPushRequest {
   transactionDesc?: string;
 }
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -137,7 +137,7 @@ serve(async (req: Request) => {
         order_id: orderId,
         user_id: user.id,
         action: "stk_push_initiated",
-        payload: { 
+        payload: {
           checkout_request_id: stkData.CheckoutRequestID,
           merchant_request_id: stkData.MerchantRequestID,
           amount: Math.ceil(amount)

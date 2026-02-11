@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
+import * as Linking from 'expo-linking';
 import { supabase } from '@/lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
@@ -54,11 +55,13 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
   const signUpMutation = useMutation({
     mutationFn: async ({ email, password, fullName }: { email: string; password: string; fullName: string }) => {
       console.log('[Auth] Signing up user');
+      const redirectUrl = Linking.createURL('/');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { full_name: fullName },
+          emailRedirectTo: redirectUrl,
         },
       });
       if (error) throw error;
@@ -81,7 +84,10 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ email }: { email: string }) => {
       console.log('[Auth] Sending password reset email');
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const redirectUrl = Linking.createURL('/');
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: redirectUrl,
+      });
       if (error) throw error;
     },
   });

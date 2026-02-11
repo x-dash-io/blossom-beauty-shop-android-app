@@ -1,7 +1,7 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// import { serve } from "std/http/server.ts";
+import { createClient } from "@supabase/supabase-js";
 
-serve(async (req: Request) => {
+Deno.serve(async (req: Request) => {
   try {
     const body = await req.json();
     console.log("M-Pesa callback received:", JSON.stringify(body));
@@ -30,7 +30,7 @@ serve(async (req: Request) => {
     }
 
     const isSuccess = ResultCode === 0;
-    
+
     // Find the payment record
     const { data: payment, error: fetchError } = await supabase
       .from("payments")
@@ -72,11 +72,11 @@ serve(async (req: Request) => {
       order_id: payment.order_id,
       user_id: payment.user_id,
       action: "callback_received",
-      payload: { 
-        result_code: ResultCode, 
-        result_desc: ResultDesc, 
+      payload: {
+        result_code: ResultCode,
+        result_desc: ResultDesc,
         is_success: isSuccess,
-        receipt: mpesaReceiptNumber 
+        receipt: mpesaReceiptNumber
       }
     });
 

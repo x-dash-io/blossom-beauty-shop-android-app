@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import * as SecureStore from 'expo-secure-store';
+import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
@@ -49,3 +50,39 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
+
+function extractParamsFromUrl(url: string): { access_token?: string; refresh_token?: string } {
+  const params: Record<string, string> = {};
+  const hashPart = url.split('#')[1];
+  if (hashPart) {
+    hashPart.split('&').forEach(pair => {
+      const [key, value] = pair.split('=');
+      if (key && value) params[key] = decodeURIComponent(value);
+    });
+  }
+  const queryPart = url.split('?')[1]?.split('#')[0];
+  if (queryPart) {
+    queryPart.split('&').forEach(pair => {
+      const [key, value] = pair.split('=');
+      if (key && value) params[key] = decodeURIComponent(value);
+    });
+  }
+  return params;
+}
+
+export function setupDeepLinkListener() {
+  const handleUrl = async (event: { url: string }) => {
+    const { access_token, refresh_token } = extractParamsFromUrl(event.url);
+    if (access_token && refresh_token) {
+      console.log('[Supabase] Setting session from deep link');
+      await supabase.auth.setSession({ access_token, refresh_token });
+    }
+  };
+
+  Linking.getInitialURL().then(url => {
+    if (url) handleUrl({ url });
+  });
+
+  const subscription = Linking.addEventListener('url', handleUrl);
+  return () => subscription.remove();
+}
