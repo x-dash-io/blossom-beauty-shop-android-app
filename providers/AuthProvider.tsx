@@ -31,7 +31,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
     checkOnboarding();
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log('[Auth] Got session:', currentSession?.user?.email ?? 'none');
+      console.log('[Auth] Session state resolved');
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setIsLoading(false);
@@ -39,7 +39,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
-        console.log('[Auth] Auth state changed:', _event, newSession?.user?.email);
+        console.log('[Auth] Auth state changed:', _event);
         setSession(newSession);
         setUser(newSession?.user ?? null);
         setIsLoading(false);
@@ -53,7 +53,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
   const signUpMutation = useMutation({
     mutationFn: async ({ email, password, fullName }: { email: string; password: string; fullName: string }) => {
-      console.log('[Auth] Signing up:', email);
+      console.log('[Auth] Signing up user');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -68,7 +68,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
   const signInMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      console.log('[Auth] Signing in:', email);
+      console.log('[Auth] Signing in user');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -80,7 +80,7 @@ export const [AuthProvider, useAuth] = createContextHook(() => {
 
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ email }: { email: string }) => {
-      console.log('[Auth] Sending password reset to:', email);
+      console.log('[Auth] Sending password reset email');
       const { error } = await supabase.auth.resetPasswordForEmail(email);
       if (error) throw error;
     },

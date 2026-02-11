@@ -8,9 +8,10 @@ import {
   Dimensions,
   RefreshControl,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Search, Bell } from 'lucide-react-native';
+import { Search, Bell, Sparkles, ArrowRight } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import Colors from '@/constants/colors';
 import { Product } from '@/types';
@@ -28,7 +29,16 @@ const CARD_WIDTH = (SCREEN_WIDTH - 44) / 2;
 export default function HomeScreen() {
   const router = useRouter();
   const { toggleFavorite, isFavorite } = useFavorites();
-  const { getFeaturedProducts, getNewProducts, getProductById, categories, banners, isLoading, refetch } = useProducts();
+  const {
+    getFeaturedProducts,
+    getNewProducts,
+    getProductById,
+    categories,
+    banners,
+    isLoading,
+    hasError,
+    refetch,
+  } = useProducts();
   const [refreshing, setRefreshing] = useState(false);
   const { viewedIds } = useRecentlyViewed();
 
@@ -85,7 +95,7 @@ export default function HomeScreen() {
           <View style={styles.header}>
             <View>
               <Text style={styles.greeting}>{getGreeting()}</Text>
-              <Text style={styles.brandName}>Blossom</Text>
+              <Text style={styles.brandName}>Blossom Beauty</Text>
             </View>
             <Pressable
               style={styles.bellButton}
@@ -105,6 +115,40 @@ export default function HomeScreen() {
               Search products, brands...
             </Text>
           </Pressable>
+
+          <LinearGradient
+            colors={[Colors.primary, '#F66BB1']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroCard}
+          >
+            <View style={styles.heroRow}>
+              <View>
+                <View style={styles.heroBadge}>
+                  <Sparkles size={12} color={Colors.white} />
+                  <Text style={styles.heroBadgeText}>Weekly glow pick</Text>
+                </View>
+                <Text style={styles.heroTitle}>Build your perfect skincare ritual</Text>
+                <Text style={styles.heroSubtitle}>Curated formulas for hydration, tone, and barrier repair.</Text>
+              </View>
+              <Pressable
+                style={styles.heroCta}
+                onPress={() => router.push('/search')}
+              >
+                <Text style={styles.heroCtaText}>Explore</Text>
+                <ArrowRight size={14} color={Colors.white} />
+              </Pressable>
+            </View>
+          </LinearGradient>
+
+          {hasError && !isLoading && (
+            <View style={styles.warningCard}>
+              <Text style={styles.warningTitle}>Limited connectivity</Text>
+              <Text style={styles.warningSubtitle}>
+                Some products may be from offline catalog. Pull to refresh anytime.
+              </Text>
+            </View>
+          )}
 
           {isLoading && !refreshing ? (
             <HomeContentSkeleton />
@@ -139,7 +183,7 @@ export default function HomeScreen() {
               </ScrollView>
 
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Featured</Text>
+                <Text style={styles.sectionTitle}>Featured for You</Text>
               </View>
               <View style={styles.productGrid}>
                 {featuredProducts.map(product => (
@@ -155,7 +199,7 @@ export default function HomeScreen() {
               </View>
 
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>New Arrivals</Text>
+                <Text style={styles.sectionTitle}>Just Landed</Text>
               </View>
               <ScrollView
                 horizontal
@@ -198,7 +242,7 @@ export default function HomeScreen() {
                 </>
               )}
 
-              <View style={{ height: 24 }} />
+              <View style={styles.footerSpacer} />
             </>
           )}
         </ScrollView>
@@ -297,5 +341,83 @@ const styles = StyleSheet.create({
   },
   newArrivalsContent: {
     paddingHorizontal: 20,
+  },
+
+  heroCard: {
+    marginHorizontal: 20,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 20,
+  },
+  heroRow: {
+    gap: 14,
+  },
+  heroBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.38)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 10,
+  },
+  heroBadgeText: {
+    color: Colors.white,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  heroTitle: {
+    color: Colors.white,
+    fontSize: 22,
+    fontWeight: '800',
+    lineHeight: 28,
+    marginBottom: 6,
+  },
+  heroSubtitle: {
+    color: 'rgba(255,255,255,0.88)',
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  heroCta: {
+    marginTop: 2,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 14,
+  },
+  heroCtaText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  warningCard: {
+    marginHorizontal: 20,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: Colors.warningLight,
+    backgroundColor: '#FFFBEB',
+    borderRadius: 14,
+    padding: 12,
+  },
+  warningTitle: {
+    color: '#92400E',
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 3,
+  },
+  warningSubtitle: {
+    color: '#B45309',
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  footerSpacer: {
+    height: 24,
   },
 });

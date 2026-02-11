@@ -32,6 +32,8 @@ export default function PromoBanner({ banner, onPress }: PromoBannerProps) {
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
       <Pressable
         onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={`${banner.title} promotion`}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         style={[styles.banner, { backgroundColor: banner.color }]}
@@ -57,9 +59,9 @@ export default function PromoBanner({ banner, onPress }: PromoBannerProps) {
 
 const styles = StyleSheet.create({
   banner: {
-    width: 290,
-    height: 150,
-    borderRadius: 20,
+    width: 300,
+    height: 156,
+    borderRadius: 22,
     flexDirection: 'row',
     overflow: 'hidden',
     marginRight: 14,
@@ -70,7 +72,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '700',
     color: Colors.textPrimary,
     lineHeight: 20,
